@@ -1,0 +1,45 @@
+# Decentralized AI Systems - Training Configuration
+
+# Model Configuration
+model:
+  num_classes: 10
+  input_channels: 1
+  architecture: "EdgeCNN"
+
+# Data Configuration
+data:
+  use_synthetic: true  # Set to false to use real MNIST
+  data_dir: "./data/raw"
+  num_samples: 10000
+  noise_level: 0.1
+  distribution_strategy: "non_iid"  # Options: "iid", "non_iid", "heterogeneous"
+
+# Training Configuration
+training:
+  seed: 42
+  learning_rate: 0.001
+  batch_size: 32
+  total_rounds: 10
+  local_epochs: 1
+
+# Network Configuration
+network:
+  num_peers: 3
+  sync_frequency: 1  # Sync every N rounds
+  sync_strategy: "average"  # Options: "average", "weighted"
+
+# Optimization Configuration
+optimization:
+  pruning_sparsity: 0.2
+  quantization_method: "dynamic"  # Options: "dynamic", "static"
+
+# Evaluation Configuration
+evaluation:
+  num_runs: 100
+  batch_sizes: [1, 8, 16, 32]
+  noise_levels: [0.0, 0.1, 0.2, 0.3]
+
+# Device Configuration
+device:
+  type: "auto"  # Options: "auto", "cpu", "cuda"
+  fallback_to_cpu: true

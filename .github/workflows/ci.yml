@@ -1,0 +1,98 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Lint with ruff
+      run: |
+        pip install ruff
+        ruff check src/ scripts/ tests/ --output-format=github
+    
+    - name: Format check with black
+      run: |
+        pip install black
+        black --check src/ scripts/ tests/
+    
+    - name: Run tests
+      run: |
+        python tests/test_system.py
+    
+    - name: Test model export (CPU only)
+      run: |
+        python -c "
+        import sys
+        sys.path.append('src')
+        from models.decentralized_learning import EdgeCNN
+        from export.model_exporter import ModelExporter
+        import torch
+        
+        # Test basic model creation and export
+        model = EdgeCNN(num_classes=10, input_channels=1)
+        exporter = ModelExporter(output_dir='./test_export')
+        
+        # Test ONNX export if available
+        try:
+            exporter.export_to_onnx(model, (1, 28, 28), 'test_model.onnx')
+            print('ONNX export test passed')
+        except ImportError:
+            print('ONNX not available, skipping export test')
+        "
+
+  build-docs:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Generate documentation
+      run: |
+        echo "# Decentralized AI Systems Documentation" > docs/README.md
+        echo "This is a placeholder for future documentation." >> docs/README.md
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs

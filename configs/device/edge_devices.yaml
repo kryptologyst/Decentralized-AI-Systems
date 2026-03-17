@@ -1,0 +1,92 @@
+# Device-specific configurations for edge deployment
+
+# Raspberry Pi 4 Configuration
+raspberry_pi_4:
+  device_name: "Raspberry Pi 4"
+  cpu_cores: 4
+  memory_gb: 4
+  storage_gb: 32
+  os: "Raspberry Pi OS"
+  python_version: "3.10+"
+  frameworks:
+    - "onnxruntime"
+    - "tflite-runtime"
+    - "opencv-python"
+  optimization:
+    batch_size: 1
+    precision: "fp16"
+    use_npu: false
+  performance_targets:
+    max_latency_ms: 100
+    max_memory_mb: 500
+    max_power_w: 5
+
+# NVIDIA Jetson Nano Configuration
+jetson_nano:
+  device_name: "NVIDIA Jetson Nano"
+  cpu_cores: 4
+  memory_gb: 4
+  storage_gb: 16
+  os: "JetPack"
+  python_version: "3.8+"
+  frameworks:
+    - "tensorrt"
+    - "onnxruntime"
+    - "opencv-python"
+  optimization:
+    batch_size: 1
+    precision: "fp16"
+    use_npu: true
+  performance_targets:
+    max_latency_ms: 50
+    max_memory_mb: 1000
+    max_power_w: 10
+
+# Android Device Configuration
+android:
+  device_name: "Android Device"
+  min_api_level: 21
+  frameworks:
+    - "tflite"
+    - "onnxruntime"
+  optimization:
+    batch_size: 1
+    precision: "int8"
+    use_gpu: true
+  performance_targets:
+    max_latency_ms: 200
+    max_memory_mb: 200
+    battery_efficient: true
+
+# iOS Device Configuration
+ios:
+  device_name: "iOS Device"
+  min_version: "13.0"
+  frameworks:
+    - "coreml"
+    - "onnxruntime"
+  optimization:
+    batch_size: 1
+    precision: "fp16"
+    use_neural_engine: true
+  performance_targets:
+    max_latency_ms: 100
+    max_memory_mb: 300
+    battery_efficient: true
+
+# Generic Edge Device Configuration
+generic_edge:
+  device_name: "Generic Edge Device"
+  cpu_cores: 2
+  memory_gb: 2
+  frameworks:
+    - "onnxruntime"
+    - "opencv-python"
+  optimization:
+    batch_size: 1
+    precision: "fp32"
+    use_gpu: false
+  performance_targets:
+    max_latency_ms: 500
+    max_memory_mb: 200
+    max_power_w: 3
